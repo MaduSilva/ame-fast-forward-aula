@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { CommentsService } from './comments.service';
+import { CommentService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
@@ -16,7 +16,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 // http://localhost:3000/comments/
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {}
+  constructor(private readonly commentsService: CommentService) {}
 
   @Post()
   create(@Body() createCommentDto: CreateCommentDto) {

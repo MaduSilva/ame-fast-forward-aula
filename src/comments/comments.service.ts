@@ -11,7 +11,7 @@ import { CommentEntity } from './entities/comment.entity';
 //Injeção de Depêndencia
 //Injetar um trecho de código em outra parte
 @Injectable()
-export class CommentsService {
+export class CommentService {
   private comments: CommentEntity[] = [
     {
       id: 1,
@@ -19,6 +19,7 @@ export class CommentsService {
       user_id: '1',
     },
   ];
+
   create(createCommentDto: CreateCommentDto) {
     //lógica para criação de novo id do comentário
     const lastId = this.comments[this.comments.length - 1]?.id || 0;
@@ -36,18 +37,42 @@ export class CommentsService {
   }
 
   findAll() {
+    //retornar todos os comentários
     return this.comments;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} comment`;
+    //retorna o comentário com id selecionado
+    const comment = this.comments.find((comment) => comment.id === id);
+
+    if (!comment) {
+      throw new Error(`Comentário ${id} não encontrado`);
+    }
+
+    return comment;
   }
 
   update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+    //atualiza o comentário
+    const comment = this.findOne(id);
+
+    const index = this.comments.indexOf(comment);
+
+    const newComment = {
+      ...comment,
+      ...updateCommentDto,
+    };
+
+    this.comments[index] = newComment;
+
+    return newComment;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} comment`;
+    const comment = this.findOne(id);
+
+    const index = this.comments.indexOf(comment);
+
+    this.comments.splice(index, 1);
   }
 }
