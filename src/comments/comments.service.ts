@@ -2,6 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
+// Provider
+// Aqui fica as regras de negócio
+// Exemplo: falar com banco de dados, funções e métodos que serão executados
+// Caracterizado pelo decorator @Injectable (Injeção de Depêndencia)
+
+//Injeção de Depêndencia
+//Injetar um trecho de código em outra parte
 @Injectable()
 export class CommentsService {
   create(createCommentDto: CreateCommentDto) {
