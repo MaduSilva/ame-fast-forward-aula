@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentEntity } from './entities/comment.entity';
+import { firstValueFrom } from 'rxjs';
 
 // Provider
 // Aqui fica as regras de negócio
@@ -20,20 +22,29 @@ export class CommentService {
     },
   ];
 
-  create(createCommentDto: CreateCommentDto) {
-    //lógica para criação de novo id do comentário
-    const lastId = this.comments[this.comments.length - 1]?.id || 0;
+  constructor(private httpService: HttpService) {}
 
-    //novo comentário
-    const newComment = {
-      id: lastId + 1,
-      //rest operator
-      ...createCommentDto,
-    };
+  async create(createCommentDto: CreateCommentDto) {
+    try {
+      await firstValueFrom(
+        this.httpService.get(
+          `https://api.github.com/users/${createCommentDto.user_id}`,
+        ),
+      );
 
-    //inserir e retornar o novo comentário criado
-    this.comments.push(newComment);
-    return newComment;
+      const lastId = this.comments[this.comments.length - 1]?.id || 0;
+
+      const newComment = {
+        id: lastId + 1,
+        ...createCommentDto,
+      };
+
+      this.comments.push(newComment);
+
+      return newComment;
+    } catch (err) {
+      throw new NotFoundException('Card não encontrado');
+    }
   }
 
   findAll() {
@@ -46,7 +57,7 @@ export class CommentService {
     const comment = this.comments.find((comment) => comment.id === id);
 
     if (!comment) {
-      throw new Error(`Comentário ${id} não encontrado`);
+      throw new NotFoundException(`Comentário ${id} não encontrado`);
     }
 
     return comment;
@@ -74,5 +85,15 @@ export class CommentService {
     const index = this.comments.indexOf(comment);
 
     this.comments.splice(index, 1);
+  }
+
+  findByUserId(id: string) {
+    const comment = this.comments.filter((comment) => comment.user_id === id);
+
+    if (!comment) {
+      throw new NotFoundException(`Usuário ${id} não encontrado`);
+    }
+
+    return comment;
   }
 }
